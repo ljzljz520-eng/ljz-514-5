@@ -124,24 +124,35 @@ function collectSelection() {
   state.avoidCrowd = $("#avoidCrowd").checked;
 }
 
+// 选点/策略变更后，旧规划结果即失效：清除路线高亮，避免旧路线残留在拓扑图上
+function clearRoute() {
+  state.route = null;
+}
+
 function bindEvents() {
   $("#entrance").addEventListener("change", () => {
     state.selected.entrance = $("#entrance").value;
+    clearRoute();
     renderMap();
   });
   $("#dining").addEventListener("change", () => {
     state.selected.dining = $("#dining").value || null;
+    clearRoute();
     renderMap();
   });
   $("#meeting").addEventListener("change", () => {
     state.selected.meeting = $("#meeting").value || null;
+    clearRoute();
     renderMap();
   });
   $("#avoidCrowd").addEventListener("change", () => {
     state.avoidCrowd = $("#avoidCrowd").checked;
+    clearRoute();
+    renderMap();
   });
   $("#clearBooths").addEventListener("click", () => {
     state.selected.booths = [];
+    clearRoute();
     refreshBoothUI();
     renderMap();
   });
@@ -153,6 +164,7 @@ function bindEvents() {
     const i = arr.indexOf(id);
     if (cb.checked && i < 0) arr.push(id);
     if (!cb.checked && i >= 0) arr.splice(i, 1);
+    clearRoute();
     refreshBoothUI();
     renderMap();
   });
@@ -180,6 +192,7 @@ function loadExample(key) {
   $("#entrance").value = S.entrance;
   $("#dining").value = S.dining || "";
   $("#meeting").value = S.meeting || "";
+  clearRoute();
   refreshBoothUI();
   renderMap();
   planRoute();
@@ -371,6 +384,7 @@ function onMapPick(id) {
     state.selected.meeting = state.selected.meeting === id ? null : id;
     $("#meeting").value = state.selected.meeting || "";
   }
+  clearRoute();
   renderMap();
 }
 
@@ -442,6 +456,8 @@ async function planRoute() {
     avoidCrowd: state.avoidCrowd,
   };
   if (!s.entrance || (s.booths.length === 0 && !s.dining && !s.meeting)) {
+    clearRoute();
+    renderMap();
     $("#steps").innerHTML = `<div class="placeholder">请至少选择入口和一个目标<br>（展位 / 餐饮区 / 会议室）</div>`;
     $("#summary").innerHTML = "";
     return;
@@ -452,6 +468,8 @@ async function planRoute() {
     body: JSON.stringify(body),
   }).then(r => r.json());
   if (resp.error) {
+    clearRoute();
+    renderMap();
     $("#steps").innerHTML = `<div class="alert-unreachable"><div class="a-head">⚠️ ${esc(resp.error)}</div></div>`;
     return;
   }

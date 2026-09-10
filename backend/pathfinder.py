@@ -227,14 +227,17 @@ def route_metrics(path_nodes, path_edges):
     transfers = 0
     floors_visited = [NODES[path_nodes[0]]["floor"]]
     edge_rows = []
-    for e in path_edges:
+    for idx, e in enumerate(path_edges):
         kind = e["kind"]
         row = {"edgeId": e["id"], "kind": kind, "distance": e["distance"],
                "crowd": e.get("crowd", 0)}
         if kind in VERTICAL_KINDS:
             vertical_time += VERTICAL_META[kind]["time_s"]
             transfers += 1
-            fa, fb = NODES[e["a"]]["floor"], NODES[e["b"]]["floor"]
+            # 按实际行进方向取起止楼层：垂直边的 a/b 固定为低层->高层，
+            # 下行（b->a）时若直接取 e["b"] 的楼层会把出发层误作到达层
+            fa = NODES[path_nodes[idx]]["floor"]
+            fb = NODES[path_nodes[idx + 1]]["floor"]
             row["fromFloor"] = fa
             row["toFloor"] = fb
             if fb not in floors_visited:
@@ -283,11 +286,9 @@ def build_steps(path_nodes, path_edges, start_name, goal_name):
             # 连续垂直边（例如 1F->2F->3F 同乘电梯不中断才会合并）
             j = i
             kinds = []
-            to_floors = []
             while j < n and path_edges[j]["kind"] in VERTICAL_KINDS \
                     and (j == i or path_edges[j]["kind"] == path_edges[j-1]["kind"]):
                 kinds.append(path_edges[j]["kind"])
-                to_floors.append(NODES[path_edges[j]["b"]]["floor"])
                 j += 1
             kind = kinds[0]
             from_f = NODES[path_nodes[i]]["floor"]
