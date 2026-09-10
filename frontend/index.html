@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>会展中心逛展路径工具</title>
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<header class="topbar">
+  <div class="brand">
+    <span class="logo">🏛️</span>
+    <div>
+      <h1>会展中心逛展路径工具</h1>
+      <p>选择入口、目标展位、餐饮区与会议室，综合「通道距离 · 楼层换乘 · 拥挤程度」智能规划</p>
+    </div>
+  </div>
+  <div class="legend" id="legend"></div>
+</header>
+
+<main class="layout">
+  <!-- 左侧：选点面板 -->
+  <aside class="panel form-panel">
+    <h2>① 行程选点</h2>
+
+    <label class="field-label">展馆入口</label>
+    <select id="entrance"></select>
+
+    <div class="field-label-row">
+      <label class="field-label">目标展位（可多选，按顺序到访）</label>
+      <div class="mini-btns">
+        <button type="button" id="clearBooths" class="mini">清空</button>
+      </div>
+    </div>
+    <div id="boothList" class="booth-list"></div>
+
+    <label class="field-label">餐饮区（可选）</label>
+    <select id="dining"></select>
+
+    <label class="field-label">会议室（可选）</label>
+    <select id="meeting"></select>
+
+    <label class="check-line">
+      <input type="checkbox" id="avoidCrowd">
+      <span>优先避开拥挤通道（可能多走路程）</span>
+    </label>
+
+    <button id="planBtn" class="primary">② 开始规划路线</button>
+
+    <div class="examples">
+      <button class="chip" data-example="normal">示例：常规逛展路线</button>
+      <button class="chip" data-example="crossfloor">示例：跨层 + 餐饮 + 会议</button>
+      <button class="chip danger" data-example="blocked">示例：不可达展位 C304</button>
+      <button class="chip danger" data-example="closed">示例：闭展展位 B206</button>
+    </div>
+    <p class="tip">💡 也可以直接点击拓扑图上的展位/餐厅/会议室进行选点。</p>
+  </aside>
+
+  <!-- 中间：拓扑图 -->
+  <section class="panel map-panel">
+    <div class="map-head">
+      <h2>场馆拓扑图</h2>
+      <div class="map-note" id="mapNote">虚线为跨楼层垂直交通；红虚线为当前封闭通道</div>
+    </div>
+    <div class="svg-scroll" id="svgScroll"></div>
+  </section>
+
+  <!-- 右侧：文字步骤 -->
+  <aside class="panel steps-panel">
+    <h2>③ 路线指引</h2>
+    <div id="summary"></div>
+    <div id="steps"></div>
+  </aside>
+</main>
+
+<script src="app.js"></script>
+</body>
+</html>
